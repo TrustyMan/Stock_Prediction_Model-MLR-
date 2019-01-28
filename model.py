@@ -9,21 +9,20 @@ from sklearn.multioutput import MultiOutputRegressor
 from sklearn.svm import SVR
 import warnings
 import matplotlib.pyplot as plt
+import pickle
 
 warnings.filterwarnings('ignore')
 
 model = MultiOutputRegressor(LinearRegression(),n_jobs=-1)
 
 x_train, y_train, x_test, y_test, high_scale, low_scale = get_train_test() # train test split of dataset
-# joblib.dump(scale, 'scale_models/scale_google.pkl') 
-
-# x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1])) # reshaping data for LSTM
-# x_test = np.reshape(x_test, (x_test.shape[0], 1, x_test.shape[1])) # reshaping data for LSTM
-# x_train = x_train.reshape(-1,1)
-# x_test = x_test.reshape(-1,1)
 
 # model = LinearRegression()
 model.fit(x_train, y_train)
+model.predict()
+
+with open('model_scalars.pkl', 'wb') as f:  # Python 3: open(..., 'wb')
+    pickle.dump([high_scale,low_scale,model], f)
 
 test = model.predict(x_test)
 y_trueh = high_scale.inverse_transform(y_test[:,0].reshape(-1,1)).ravel() # inverse scaling of the original test data. inverse scaling is done to get the original stock value which was converted into 0 and 1 range
@@ -36,6 +35,6 @@ plot = pd.DataFrame(np.stack([y_truel,y_predl],axis=1), columns=["True","Predict
 plot.plot()
 plt.show()
 err = np.sqrt(mean_squared_error(y_trueh, y_predh)) #calculation of root mean square error
-print("Root Mean Squared Error:%s"%err)
+print("Root Mean Squared Error of High is :%s"%err)
 err = np.sqrt(mean_squared_error(y_truel, y_predl)) #calculation of root mean square error
-print("Root Mean Squared Error:%s"%err)
+print("Root Mean Squared Error of Low is :%s"%err)

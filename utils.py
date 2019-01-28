@@ -1,6 +1,5 @@
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
-import dateparser
 import numpy as np
 
 np.random.seed(100) #for reproducibility
